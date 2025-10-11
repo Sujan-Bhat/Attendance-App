@@ -1,12 +1,25 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.core.config import settings
+from app.api.v1 import auth, teacher, attendance, analytics
 
-app = FastAPI(title="Attendance Management System API")
+app = FastAPI(title=settings.PROJECT_NAME)
 
-@app.get("/", tags=["Root"])
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-async def read_root():
+# Include routers
+app.include_router(auth.router, prefix=settings.API_V1_STR)
+app.include_router(teacher.router, prefix=settings.API_V1_STR)
+app.include_router(attendance.router, prefix=settings.API_V1_STR)
+app.include_router(analytics.router, prefix=settings.API_V1_STR)
 
-    """Call this root endpoint to check if the service is up and running."""
-    return {"status": "ok", "message": "Welcome to the Attendance Management System API"}
-
-# Additional endpoints and logic would go here
+@app.get("/")
+def root():
+    return {"message": "Welcome to Attendance Management System"}
